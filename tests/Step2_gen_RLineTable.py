@@ -3,8 +3,8 @@ from Jinhong_tools import *
 import Parse_strtonum
 #ls = Parse_strtonum.Parse_strtonum("ertew345555634sdfg45345645645664")
 #将"x坐标", "y坐标", "材料型号编号","本公司编号","材料名称"写入文本
-# to load database
-# it the text Extracted from pdf file
+# to load database  加载数据
+# it the text Extracted from pdf file 文本从PDF文件中提取
 filepath = "../database/Db.txt" #读取数据库文本（本公司线号、原公司线号、型号）对应表
 jinl = Jinhong_tools(filepath)
 DBltable = jinl.loadlinetableDB()#线号型号对应表

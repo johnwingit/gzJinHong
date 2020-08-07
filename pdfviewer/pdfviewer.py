@@ -1,4 +1,5 @@
 import io
+import tkinter
 import pdfplumber
 import PyPDF2
 import pytesseract
@@ -20,6 +21,7 @@ from pdfviewer.display_canvas import DisplayCanvas
 
 class PDFViewer(Frame):
 
+    #初始化
     def __init__(self, master=None, **kw):
         Frame.__init__(self, master, **kw)
         self.pdf = None
@@ -33,30 +35,44 @@ class PDFViewer(Frame):
         self.save_path = None
         self._init_ui()
 
+    #初始化UI
     def _init_ui(self):
+        #获取屏幕的宽度和高度
         ws = self.master.winfo_screenwidth()
         hs = self.master.winfo_screenheight()
+
         h = hs - 100
         w = int(h / 1.414) + 100
-        x = (ws / 2) - (w / 2)
-        y = (hs / 2) - (h / 2)
-        self.master.geometry('%dx%d+%d+%d' % (w, h, x, y))
+
+        #居中显示
+        left = (ws / 2) - (w / 2)
+        top = (hs / 2) - (h / 2)
+        self.master.geometry('%dx%d+%d+%d' % (w, h, left, top))
+        #self.master.geometry('%dx%d' %(ws,hs)) #全屏显示
+
+        #设置标题
         self.master.title("PDFViewer")
 
+        #设置窗口长宽是否可变
+        self.master.resizable(width=True, height=True)
+
         self.master.rowconfigure(0, weight=0)
         self.master.rowconfigure(0, weight=0)
 
+        #一行两列
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=0)
 
         self.configure(bg=BACKGROUND_COLOR, bd=0)
 
+        #工具栏Frame
         tool_frame = Frame(self, bg=BACKGROUND_COLOR, bd=0, relief=SUNKEN)
+        #pdfFrame
         pdf_frame = Frame(self, bg=BACKGROUND_COLOR, bd=0, relief=SUNKEN)
-
-        tool_frame.grid(row=0, column=0, sticky='news')
-        pdf_frame.grid(row=0, column=1, sticky='news')
+        #2个Frame的位置
+        tool_frame.grid(row=0, column=0, sticky='new')#new
+        pdf_frame.grid(row=0, column=1, sticky='new')#new
 
         # Tool Frame
         tool_frame.columnconfigure(0, weight=1)
@@ -65,14 +81,14 @@ class PDFViewer(Frame):
         tool_frame.rowconfigure(2, weight=0)
         tool_frame.rowconfigure(3, weight=2)
 
-
+       #菜单盒
         options = MenuBox(tool_frame, image_path=os.path.join(ROOT_PATH, 'widgets/options.png'))
         options.grid(row=0, column=0)
 
         options.add_item('Open Files...', self._open_file)
         options.add_item('Open Directory...', self._open_dir, seperator=True)
         options.add_item('Next File', self._next_file)
-        options.add_item('Previous File', self._prev_file, seperator=True)
+        options.add_item('Previous File', self._prev_file, seperator=True) #seperator 分离器，是否有后续窗口
         options.add_item('Step1_PdfToTxts',self._PdfToTxts)
         options.add_item('Step2_RLineTable', self._gen_RLineTable)
         options.add_item('Step3_gen_WLineTable', self._gen_WLineTable)
@@ -80,6 +96,7 @@ class PDFViewer(Frame):
         options.add_item('Help...', self._help, seperator=True)
         options.add_item('Exit', self.master.quit)
 
+        #按钮栏
         tools = Frame(tool_frame, bg=BACKGROUND_COLOR, bd=0, relief=SUNKEN)
         tools.grid(row=2, column=0)
 
@@ -90,36 +107,47 @@ class PDFViewer(Frame):
         HoverButton(tools, image_path=os.path.join(ROOT_PATH, 'widgets/clear.png'), command=self._clear,
                     width=50, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="Clear",
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(pady=2)
+
         HoverButton(tools, image_path=os.path.join(ROOT_PATH, 'widgets/open_file.png'), command=self._open_file,
                     width=50, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="Open Files",
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(pady=2)
+
         HoverButton(tools, image_path=os.path.join(ROOT_PATH, 'widgets/open_dir.png'), command=self._open_dir,
                     width=50, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="Open Directory",
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(pady=2)
+
         HoverButton(tools, image_path=os.path.join(ROOT_PATH, 'widgets/search.png'), command=self._search_text,
                     width=50, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="Search Text",
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(pady=2)
+
         HoverButton(tools, image_path=os.path.join(ROOT_PATH, 'widgets/extract.png'), command=self._extract_text,
                     width=50, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="Extract Text", keep_pressed=True,
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(pady=2)
+
         HoverButton(tools, image_path=os.path.join(ROOT_PATH, 'widgets/ocr.png'), command=self._run_ocr,
                     width=50, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="Run OCR",
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(pady=2)
+
         HoverButton(tools,image_path=os.path.join(ROOT_PATH,'widgets/s1.png'), command=self._PdfToTxts,
                     width=50,height=50,bg=BACKGROUND_COLOR,bd=0,tool_tip="Pdf To Txts",
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(pady=2)
+
         HoverButton(tools, image_path=os.path.join(ROOT_PATH, 'widgets/s2.png'), command=self._gen_RLineTable,
                     width=50, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="",
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(pady=2)
+
         HoverButton(tools, image_path=os.path.join(ROOT_PATH, 'widgets/s3.png'), command=self._gen_WLineTable,
                     width=50, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="",
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(pady=2)
+
         HoverButton(tools, image_path=os.path.join(ROOT_PATH, 'widgets/s4.png'), command=self._linetableToPdf,
                     width=50, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="",
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(pady=2)
+
         file_frame = Frame(tools, width=50, height=50, bg=BACKGROUND_COLOR, bd=0, relief=SUNKEN)
         file_frame.pack(pady=2)
 
+        #左右按钮，两列
         file_frame.columnconfigure(0, weight=1)
         file_frame.columnconfigure(1, weight=1)
 
@@ -130,6 +158,7 @@ class PDFViewer(Frame):
                     width=25, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="Next File",
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).grid(row=0, column=1)
 
+         #help按钮
         HoverButton(tool_frame, image_path=os.path.join(ROOT_PATH, 'widgets/help.png'), command=self._help,
                     width=50, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="Help",
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).grid(row=3, column=0, sticky='s')
@@ -192,15 +221,19 @@ class PDFViewer(Frame):
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(side=RIGHT, expand=True)
 
         canvas_frame = Frame(pdf_frame, bg=BACKGROUND_COLOR, bd=1, relief=SUNKEN)
-        canvas_frame.grid(row=1, column=0, sticky='news')
+        canvas_frame.grid(row=1, column=0, sticky='new')
 
-        self.canvas = DisplayCanvas(canvas_frame, page_height=h-42, page_width=w-70)
-        self.canvas.pack()
+        self.canvas = DisplayCanvas(canvas_frame, page_height=h-45, page_width=w-70)
+        #self.canvas = DisplayCanvas(canvas_frame, page_height=hs, page_width=ws)
+        self.canvas.pack(fill="both", expand=True)
 
-        self.grid(row=0, column=0, sticky='news')
+        #self.grid(row=0, column=0, sticky='new')
+        self.grid(row=0, column=0, sticky=N+S+E+W)
 
-        self.master.minsize(height=h, width=w)
-        self.master.maxsize(height=h, width=w)
+       #设置窗口最小尺寸
+        self.master.minsize(height=w, width=h)
+       #设置窗口最大尺寸
+        self.master.maxsize(height=hs, width=ws)
 
     def _reject(self):
         if self.pdf is None:
@@ -469,9 +502,11 @@ class PDFViewer(Frame):
     def _PdfToTxts(self):
        try:
          S1_pdfToTxts(self.paths[0])
-         win32api.MessageBox(0,"Pdf To Txts Success！","提示",win32con.MB_OK)
+         tkinter.messagebox.showinfo(title='提示', message='Pdf To Txts Success！')
+        # win32api.MessageBox(0,"Pdf To Txts Success！","提示",win32con.MB_OK)
        except:
-           win32api.MessageBox(0, "Failure！", "提示", win32con.MB_OK)
+           #win32api.MessageBox(0, "Failure！", "提示", win32con.MB_OK)
+           tkinter.messagebox.showinfo(title='提示', message='Failure!')
 #S2
     def _gen_RLineTable(self):
        #try:
@@ -483,16 +518,17 @@ class PDFViewer(Frame):
     def _gen_WLineTable(self):
         try:
              S3_gen_WLineTable()
-             win32api.MessageBox(0, "需要标记的本公司线号坐标及内容已写入文本！", "提示", win32con.MB_OK)
+             #win32api.MessageBox(0, "需要标记的本公司线号坐标及内容已写入文本！", "提示", win32con.MB_OK)
+             tkinter.messagebox.showinfo(title='提示', message='需要标记的本公司线号坐标及内容已写入文本！')
         except:
-                win32api.MessageBox(0, "Failure！", "提示", win32con.MB_OK)
+                tkinter.messagebox.showinfo(title='提示', message='Failure!')
 #S4
     def _linetableToPdf(self):
         try:
             S4_linetableToPdf(self.path[0])
-            win32api.MessageBox(0, "已将内容写入pdf！", "提示", win32con.MB_OK)
+            tkinter.messagebox.showinfo(title='提示', message='已将内容写入pdf！')
         except:
-            win32api.MessageBox(0, "Failure！", "提示", win32con.MB_OK)
+            tkinter.messagebox.showinfo(title='提示', message='Failure!')
 
     def _help(self):
         ws = self.master.winfo_screenwidth()

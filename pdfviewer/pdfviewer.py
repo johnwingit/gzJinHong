@@ -131,19 +131,19 @@ class PDFViewer(Frame):
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(pady=2)
 
         HoverButton(tools,image_path=os.path.join(ROOT_PATH,'widgets/s1.png'), command=self._PdfToTxts,
-                    width=50,height=50,bg=BACKGROUND_COLOR,bd=0,tool_tip="Pdf To Txts",
+                    width=50,height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="Pdf To Txts",
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(pady=2)
 
         HoverButton(tools, image_path=os.path.join(ROOT_PATH, 'widgets/s2.png'), command=self._gen_RLineTable,
-                    width=50, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="",
+                    width=50, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="S2",
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(pady=2)
 
         HoverButton(tools, image_path=os.path.join(ROOT_PATH, 'widgets/s3.png'), command=self._gen_WLineTable,
-                    width=50, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="",
+                    width=50, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="S3",
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(pady=2)
 
         HoverButton(tools, image_path=os.path.join(ROOT_PATH, 'widgets/s4.png'), command=self._linetableToPdf,
-                    width=50, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="",
+                    width=50, height=50, bg=BACKGROUND_COLOR, bd=0, tool_tip="S4",
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(pady=2)
 
         file_frame = Frame(tools, width=50, height=50, bg=BACKGROUND_COLOR, bd=0, relief=SUNKEN)
@@ -465,7 +465,7 @@ class PDFViewer(Frame):
             self.pdf = pdfplumber.open(path)
             self.total_pages = len(self.pdf.pages)
             self.pageidx = 1
-            self.scale = 1.29
+            self.scale = 1.0
             self.rotate = 0
             self._update_page()
             self.master.title("PDFViewer : {}".format(path))
@@ -536,7 +536,7 @@ class PDFViewer(Frame):
             path="pdffile/YT4_produce01.pdf"
             self.pdf = pdfplumber.open(path)
             self.pageidx = 1
-            self.scale = 1.29
+            self.scale = 1.0
             self.rotate = 0
             self._update_page()
         except:

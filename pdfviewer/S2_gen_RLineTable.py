@@ -1,6 +1,6 @@
 import fitz
 from pdfviewer.Jinhong_tools import *
-from pdfviewer.Parse_strtonum import Parse_strtonum
+from pdfviewer.Parse_strtonum import *
 #ls = Parse_strtonum.Parse_strtonum("ertew345555634sdfg45345645645664")
 #将"x坐标", "y坐标", "材料型号编号","本公司编号","材料名称"写入文本
 # to load database
@@ -26,7 +26,7 @@ def S2_RLineTable(path):
         # 后面跟 ',' 将忽略换行符
         count = 0
         text = ""
-        ls = Parse_strtonum.Parse_strtonum(line)  # 判断是否是材料型号编号
+        ls = strtonum(line)  # 判断是否是材料型号编号
         for i in range(len(ls)):
             print(ls[i])
             text = ls[i]

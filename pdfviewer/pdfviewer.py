@@ -9,7 +9,7 @@ from PIL import Image
 import win32api,win32con
 
 from pdfviewer.S1_pdfToTxts import S1_pdfToTxts
-from pdfviewer.S2_gen_RLineTable import  S2_RLineTable
+from pdfviewer.S2_gen_RLineTable import S2_RLineTable
 from pdfviewer.S3_gen_WLineTable import S3_gen_WLineTable
 from pdfviewer.S4_linetableToPdf import S4_linetableToPdf
 from pdfviewer.config import *
@@ -45,10 +45,12 @@ class PDFViewer(Frame):
         w = int(h / 1.414) + 100
 
         #居中显示
-        left = (ws / 2) - (w / 2)
-        top = (hs / 2) - (h / 2)
-        self.master.geometry('%dx%d+%d+%d' % (w, h, left, top))
-        #self.master.geometry('%dx%d' %(ws,hs)) #全屏显示
+        #left = (ws / 2) - (w / 2)
+        #top = (hs / 2) - (h / 2)
+        self.master.geometry('%dx%d+%d+%d' % (ws, hs, -10, 0))
+
+        # 全屏显示
+        #self.master.geometry('%dx%d' %(ws,hs))
 
         #设置标题
         self.master.title("PDFViewer")
@@ -71,8 +73,8 @@ class PDFViewer(Frame):
         #pdfFrame
         pdf_frame = Frame(self, bg=BACKGROUND_COLOR, bd=0, relief=SUNKEN)
         #2个Frame的位置
-        tool_frame.grid(row=0, column=0, sticky='new')#new
-        pdf_frame.grid(row=0, column=1, sticky='new')#new
+        tool_frame.grid(row=0, column=0, sticky=N+S+E+W)#new
+        pdf_frame.grid(row=0, column=1, sticky=N+S+E+W)#new
 
         # Tool Frame
         tool_frame.columnconfigure(0, weight=1)
@@ -169,7 +171,7 @@ class PDFViewer(Frame):
         pdf_frame.rowconfigure(1, weight=0)
 
         page_tools = Frame(pdf_frame, bg=BACKGROUND_COLOR, bd=0, relief=SUNKEN)
-        page_tools.grid(row=0, column=0, sticky='news')
+        page_tools.grid(row=0, column=0, sticky=N+S+E+W)#new
 
         page_tools.rowconfigure(0, weight=1)
         page_tools.columnconfigure(0, weight=1)
@@ -200,7 +202,7 @@ class PDFViewer(Frame):
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(side=LEFT, expand=True)
 
         zoom_frame = Frame(page_tools, bg=BACKGROUND_COLOR, bd=0, relief=SUNKEN)
-        zoom_frame.grid(row=0, column=3, sticky='ns')
+        zoom_frame.grid(row=0, column=3, sticky=N+S+E+W)#ns
 
         HoverButton(zoom_frame, image_path=os.path.join(ROOT_PATH, 'widgets/rotate.png'),
                     command=self._rotate, bg=BACKGROUND_COLOR, bd=0,
@@ -221,17 +223,17 @@ class PDFViewer(Frame):
                     highlightthickness=0, activebackground=HIGHLIGHT_COLOR).pack(side=RIGHT, expand=True)
 
         canvas_frame = Frame(pdf_frame, bg=BACKGROUND_COLOR, bd=1, relief=SUNKEN)
-        canvas_frame.grid(row=1, column=0, sticky='new')
+        canvas_frame.grid(row=1, column=0, sticky=N+S+E+W)#new
 
-        self.canvas = DisplayCanvas(canvas_frame, page_height=h-45, page_width=w-70)
-        #self.canvas = DisplayCanvas(canvas_frame, page_height=hs, page_width=ws)
-        self.canvas.pack(fill="both", expand=True)
+        self.canvas = DisplayCanvas(canvas_frame, page_height=hs-110, page_width=ws-70)
+        self.canvas.grid(sticky=N+S+E+W)
+       # self.canvas.pack(fill="both", expand=True)
 
         #self.grid(row=0, column=0, sticky='new')
         self.grid(row=0, column=0, sticky=N+S+E+W)
 
        #设置窗口最小尺寸
-        self.master.minsize(height=w, width=h)
+        #self.master.minsize(height=h, width=w)
        #设置窗口最大尺寸
         self.master.maxsize(height=hs, width=ws)
 
@@ -344,6 +346,7 @@ class PDFViewer(Frame):
         self.pathidx -= 1
         self._load_file()
 
+#更新页面
     def _update_page(self):
         page = self.pdf.pages[self.pageidx - 1]
         self.page = page.to_image(resolution=int(self.scale * 80))
@@ -351,7 +354,7 @@ class PDFViewer(Frame):
         self.canvas.update_image(image)
         self.page_label.configure(text="Page {} of {}".format(self.pageidx, self.total_pages))
         self.zoom_label.configure(text="Zoom {}%".format(int(self.scale * 100)))
-
+#查找内容
     def _search_text(self):
         if self.pdf is None:
             return
@@ -364,7 +367,7 @@ class PDFViewer(Frame):
         image.draw_rects(words)
         image = image.annotated.rotate(self.rotate)
         self.canvas.update_image(image)
-
+#提取文字
     def _extract_text(self):
         if self.pdf is None:
             return
@@ -451,7 +454,7 @@ class PDFViewer(Frame):
         with open(path, 'wb') as out:
             out.write(pdf)
         return path
-
+#加载文件
     def _load_file(self):
         self._clear()
         path = self.paths[self.pathidx]
@@ -468,7 +471,7 @@ class PDFViewer(Frame):
             self.master.title("PDFViewer : {}".format(path))
         except (IndexError, IOError, TypeError):
             self._reject()
-
+#打开文件
     def _open_file(self):
         paths = filedialog.askopenfilenames(filetypes=[('PDF files', '*.pdf'),
                                                        ('JPG files', '*.jpg'),
@@ -483,7 +486,7 @@ class PDFViewer(Frame):
         self.total_pages = len(self.paths)
         self.pathidx += 1
         self._load_file()
-
+#打开文件夹
     def _open_dir(self):
         dir_name = filedialog.askdirectory(initialdir=os.getcwd(), title="Select Directory Containing Invoices")
         if not dir_name or dir_name == '':
@@ -501,6 +504,7 @@ class PDFViewer(Frame):
 #S1
     def _PdfToTxts(self):
        try:
+         print(self.paths[0])
          S1_pdfToTxts(self.paths[0])
          tkinter.messagebox.showinfo(title='提示', message='Pdf To Txts Success！')
         # win32api.MessageBox(0,"Pdf To Txts Success！","提示",win32con.MB_OK)
@@ -509,27 +513,28 @@ class PDFViewer(Frame):
            tkinter.messagebox.showinfo(title='提示', message='Failure!')
 #S2
     def _gen_RLineTable(self):
-       #try:
-            S2_RLineTable(self.path[0])
-         # win32api.MessageBox(0, "x坐标, y坐标, 材料型号编号,本公司编号,材料名称已写入文本！", "提示", win32con.MB_OK)
-        #except Exception as e:
-         #   win32api.MessageBox(0, e, "提示", win32con.MB_OK)
+       try:
+            print(self.paths[0])
+            S2_RLineTable(self.paths[0])
+            tkinter.messagebox.showinfo(title='提示', message='x坐标, y坐标, 材料型号编号,本公司编号,材料名称已写入文本！')
+       except:
+           tkinter.messagebox.showinfo(title='提示', message='Failure!')
 #S3
     def _gen_WLineTable(self):
         try:
              S3_gen_WLineTable()
-             #win32api.MessageBox(0, "需要标记的本公司线号坐标及内容已写入文本！", "提示", win32con.MB_OK)
              tkinter.messagebox.showinfo(title='提示', message='需要标记的本公司线号坐标及内容已写入文本！')
         except:
                 tkinter.messagebox.showinfo(title='提示', message='Failure!')
 #S4
     def _linetableToPdf(self):
         try:
-            S4_linetableToPdf(self.path[0])
+            S4_linetableToPdf(self.paths[0])
             tkinter.messagebox.showinfo(title='提示', message='已将内容写入pdf！')
+
         except:
             tkinter.messagebox.showinfo(title='提示', message='Failure!')
-
+#help方法
     def _help(self):
         ws = self.master.winfo_screenwidth()
         hs = self.master.winfo_screenheight()

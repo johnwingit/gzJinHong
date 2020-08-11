@@ -1,7 +1,7 @@
 # coding=utf-8
 import sys
 
-def Parse_strtonum(pastr):  #判断是否是材料型号编号
+def strtonum(pastr):  #判断是否是材料型号编号
     str = pastr+"a"
     count = 0
     length = 7 #定义字符串中>=7个数字的序列输出

@@ -465,7 +465,7 @@ class PDFViewer(Frame):
             self.pdf = pdfplumber.open(path)
             self.total_pages = len(self.pdf.pages)
             self.pageidx = 1
-            self.scale = 1.0
+            self.scale = 1.29
             self.rotate = 0
             self._update_page()
             self.master.title("PDFViewer : {}".format(path))
@@ -531,7 +531,14 @@ class PDFViewer(Frame):
         try:
             S4_linetableToPdf(self.paths[0])
             tkinter.messagebox.showinfo(title='提示', message='已将内容写入pdf！')
-
+            #更新界面
+            self._clear()
+            path="pdffile/YT4_produce01.pdf"
+            self.pdf = pdfplumber.open(path)
+            self.pageidx = 1
+            self.scale = 1.29
+            self.rotate = 0
+            self._update_page()
         except:
             tkinter.messagebox.showinfo(title='提示', message='Failure!')
 #help方法

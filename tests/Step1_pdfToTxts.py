@@ -11,6 +11,7 @@ import pdfminer
 import fitz
 #读取PDF文件的内容及位置
 # Open a PDF file.
+# ‘rb’ 以二进制格式打开一个文件用于只读。文件指针将会放在文件的开头。
 fp = open('../pdffile/YT4856.pdf', 'rb')
 
 # Create a PDF parser object associated with the file object.创建一个PDF分析程序与文件对象关联
@@ -46,11 +47,11 @@ def parse_obj(lt_objs,f):
     for obj in lt_objs:
 
         # if it's a textbox, print text and location 如果是文本框，打印文字和位置
-        if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal):
+        if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal):  # 水平文本对象
             print ("%6d, %6d, %s" % (obj.bbox[0], obj.bbox[1], obj.get_text()))
             f.write("%6d, %6d, %s \n" % (obj.bbox[0], obj.bbox[1], obj.get_text()))
         # if it's a container, recurse
-        elif isinstance(obj, pdfminer.layout.LTFigure):
+        elif isinstance(obj, pdfminer.layout.LTFigure):  # 重新执行方法
             parse_obj(obj._objs,f)
 
 # loop over all pages in the document 遍历文档中的所有页面
@@ -61,7 +62,6 @@ for page in PDFPage.create_pages(document):
     layout = device.get_result()
     # store all text in a file 将所有内容存入文件
     f = open("../pdffile/data1.txt", "w")
-    #f.write("Woops! I have deleted the content!")
 
     # extract text from this object 从该对象中提取文本
     parse_obj(layout._objs,f)

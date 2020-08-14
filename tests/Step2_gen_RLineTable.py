@@ -1,6 +1,6 @@
 import fitz
-from Jinhong_tools import *
-import Parse_strtonum
+from tests.Jinhong_tools import *
+from tests.Parse_strtonum import *
 #ls = Parse_strtonum.Parse_strtonum("ertew345555634sdfg45345645645664")
 #将"x坐标", "y坐标", "材料型号编号","本公司编号","材料名称"写入文本
 # to load database  加载数据
@@ -25,13 +25,13 @@ while line:
     # 后面跟 ',' 将忽略换行符
     count =0
     text =""
-    ls=Parse_strtonum.Parse_strtonum(line)  #判断是否是材料型号编号
+    ls = Parse_strtonum(line)  #判断是否是材料型号编号,是的话加入数组列表
     for i in range(len(ls)):
         print(ls[i])
         text= ls[i]
         lineno=text.strip()
         text_instances = page.searchFor(text)
-        #print(text_instances)
+        print(text_instances)
         x=text_instances[0][0]  #读横坐标
         y=text_instances[0][1]  #读纵坐标
         s4 = dictDB_ltableNO[lineno]  #本公司线号和原公司线号对应表

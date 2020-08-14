@@ -21,7 +21,7 @@ from pdfviewer.display_canvas import DisplayCanvas
 
 class PDFViewer(Frame):
 
-    #初始化
+    # 初始化
     def __init__(self, master=None, **kw):
         Frame.__init__(self, master, **kw)
         self.pdf = None
@@ -35,7 +35,7 @@ class PDFViewer(Frame):
         self.save_path = None
         self._init_ui()
 
-    #初始化UI
+    # 初始化UI
     def _init_ui(self):
         #获取屏幕的宽度和高度
         ws = self.master.winfo_screenwidth()
